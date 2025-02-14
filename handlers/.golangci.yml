@@ -1,0 +1,30 @@
+linters-settings:
+  govet:
+    check-shadowing: true
+
+linters:
+  enable:
+    - errcheck        # Проверяет, что ошибки обработаны
+    - gosimple        # Находит упрощённые конструкции
+    - staticcheck     # Анализ кода на ошибки и оптимизации
+    - unused          # Проверяет неиспользуемые переменные и функции
+    - revive          # Улучшенная версия golint
+    - gofmt           # Проверяет форматирование кода
+    - goimports       # Проверяет, что импорты оформлены правильно
+    - gocritic        # Выявляет потенциальные ошибки
+
+issues:
+  exclude-rules:
+    - linters:
+        - errcheck
+      text: "error return value not checked"  # Игнорируем ошибки без обработки
+
+  max-issues-per-linter: 20  # Максимум 20 ошибок от одного линтера
+  max-same-issues: 5         # Максимум 5 одинаковых ошибок
+
+run:
+  timeout: 2m                 # Линтер не должен работать дольше 2 минут
+  modules-download-mode: vendor
+
+output:
+  format: colored-line-number  # Красиво выводит ошибки в терминале

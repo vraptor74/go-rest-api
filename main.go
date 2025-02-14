@@ -4,6 +4,7 @@ import (
 	"go-rest-api/handlers"
 	"go-rest-api/initializers"
 	"go-rest-api/middleware"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +21,8 @@ func main() {
 	r.GET("/buy/:merch_id", middleware.RequireAuth, handlers.BuyHandler)
 	r.POST("/sendCoin", middleware.RequireAuth, handlers.SendCoinHandler)
 	r.GET("/info", middleware.RequireAuth, handlers.InfoHandler)
-	r.Run()
+	if err := r.Run(); err != nil {
+		log.Fatalf("Ошибка запуска сервера: %v", err)
+	}
 
 }
