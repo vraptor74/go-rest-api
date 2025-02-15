@@ -11,16 +11,20 @@ import (
 
 func main() {
 	initializers.LoadEnvVariables()
-	initializers.ConnectToDb()
-	initializers.SyncDatabase()
-	initializers.SeedMerchData()
+
+	dbInstance, err := initializers.NewDatabase()
+	if err != nil {
+		log.Fatalf("Ошибка подключения к БД: %v", err)
+	}
+	initializers.MigrateDB(dbInstance)
+
+	initializers.SeedMerchData(dbInstance)
 	r := gin.Default()
-	r.POST("/signup", handlers.RegisterHandler)
-	r.POST("/login", handlers.Login)
-	r.GET("/validate", middleware.RequireAuth, handlers.Validate)
-	r.GET("/buy/:merch_id", middleware.RequireAuth, handlers.BuyHandler)
-	r.POST("/sendCoin", middleware.RequireAuth, handlers.SendCoinHandler)
-	r.GET("/info", middleware.RequireAuth, handlers.InfoHandler)
+	authMiddleware := middleware.RequireAuth(dbInstance)
+	r.POST("/auth", handlers.RegisterHandler)
+	r.GET("/buy/:merch_id", authMiddleware, handlers.BuyHandler)
+	r.POST("/sendCoin", authMiddleware, handlers.SendCoinHandler)
+	r.GET("/info", authMiddleware, handlers.InfoHandler(dbInstance))
 	if err := r.Run(); err != nil {
 		log.Fatalf("Ошибка запуска сервера: %v", err)
 	}
