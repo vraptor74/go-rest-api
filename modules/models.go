@@ -10,8 +10,8 @@ type Employee struct {
 	Email     string        `gorm:"unique;not null"`
 	Password  string        `gorm:"not null"`
 	Balance   int           `gorm:"not null;default:1000"`
-	Sent      []Transaction `gorm:"foreignKey:SenderID"`   // Монетки, которые отправил сотрудник
-	Received  []Transaction `gorm:"foreignKey:ReceiverID"` // Монетки, которые получил сотрудник
+	Sent      []Transaction `gorm:"foreignKey:SenderID"`
+	Received  []Transaction `gorm:"foreignKey:ReceiverID"`
 	Purchases []Purchase    `gorm:"foreignKey:EmployeeID"`
 }
 

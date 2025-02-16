@@ -28,7 +28,7 @@ func (s *AuthService) RegisterUser(ctx context.Context, email, password string) 
 	err := s.DB.DB.WithContext(ctx).First(&user, "email = ?", email).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// Пользователя нет → создаём нового
+			// Пользователя нет  создаём нового
 			hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 			if err != nil {
 				return "", 0, errors.New("не удалось хешировать пароль")

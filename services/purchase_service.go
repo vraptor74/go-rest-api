@@ -19,7 +19,7 @@ func NewPurchaseService(db *initializers.Database) *PurchaseService {
 func (s *PurchaseService) BuyItem(ctx context.Context, user models.Employee, merchID int) (int, error) {
 	// Check for Zero values
 	if user.ID == 0 {
-		return 0, errors.New("неверный пользователь")
+		return 0, errors.New("invalid user")
 	}
 	//Check if the item exists
 	var merch models.Merch
@@ -44,12 +44,20 @@ func (s *PurchaseService) BuyItem(ctx context.Context, user models.Employee, mer
 	}()
 
 	// Update the user's balance
-	user.Balance -= merch.Price
-	if err := tx.Model(&user).Update("balance", user.Balance).Error; err != nil {
+	var newBalance int
+	err := tx.Raw(`
+    UPDATE employees 
+    SET balance = balance - ? 
+    WHERE id = ? AND balance >= ? 
+    RETURNING balance`,
+		merch.Price, user.ID, merch.Price).Scan(&newBalance).Error
+
+	if err != nil {
 		tx.Rollback()
 		log.Printf("failed to update balance: %v", err)
 		return 0, errors.New("failed to update balance")
 	}
+
 	//Record the purchase
 	purchase := models.Purchase{EmployeeID: user.ID, MerchID: uint(merchID)}
 	if err := tx.Create(&purchase).Error; err != nil {
@@ -62,6 +70,6 @@ func (s *PurchaseService) BuyItem(ctx context.Context, user models.Employee, mer
 		log.Printf("failed to commit transaction: %v", err)
 		return 0, errors.New("failed to commit transaction")
 	}
-	return user.Balance, nil
+	return newBalance, nil
 
 }

@@ -41,11 +41,18 @@ func (s *TransactionService) SendCoins(ctx context.Context, sender models.Employ
 		}
 	}()
 
-	if err := tx.Model(&sender).Update("balance", sender.Balance-amount).Error; err != nil {
+	err := tx.Exec(`
+    UPDATE employees 
+    SET balance = balance - ? 
+    WHERE id = ? AND balance >= ?`,
+		amount, sender.ID, amount).Error
+
+	if err != nil {
 		tx.Rollback()
 		log.Printf("ошибка при обновлении баланса отправителя: %v", err)
 		return errors.New("ошибка при обновлении баланса отправителя")
 	}
+
 	if err := tx.Model(&receiver).Update("balance", receiver.Balance+amount).Error; err != nil {
 		tx.Rollback()
 		log.Printf("ошибка при обновлении баланса получателя: %v", err)
