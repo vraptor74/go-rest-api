@@ -1,14 +1,14 @@
 package initializers
 
 import (
-	"log"
+    "log"
 
-	"github.com/joho/godotenv"
+    "github.com/joho/godotenv"
 )
 
-func LoadEnvVariables() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Ошибка загрузки .env файла")
-	}
+func LoadEnv() {
+    err := godotenv.Load()
+    if err != nil {
+        log.Println("⚠️  .env файл не найден, используем переменные окружения")
+    }
 }

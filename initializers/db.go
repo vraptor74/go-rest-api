@@ -15,6 +15,9 @@ type Database struct {
 
 func NewDatabase() (*Database, error) {
 	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		log.Fatal("DATABASE_URL не задан! Проверь .env файл или переменные окружения.")
+	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err

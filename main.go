@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	initializers.LoadEnvVariables()
+	initializers.LoadEnv()
 
 	dbInstance, err := initializers.NewDatabase()
 	if err != nil {
