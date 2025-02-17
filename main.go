@@ -1,16 +1,24 @@
 package main
 
 import (
+	"os"
 	"go-rest-api/handlers"
 	"go-rest-api/initializers"
 	"go-rest-api/middleware"
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
-
+func init() {
+	if os.Getenv("APP_ENV") != "production" { // Только вне продакшена
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("⚠️  .env файл не найден, используем переменные окружения")
+		}
+	}
+}
 func main() {
-	initializers.LoadEnv()
 
 	dbInstance, err := initializers.NewDatabase()
 	if err != nil {

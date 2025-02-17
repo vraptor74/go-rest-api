@@ -1,25 +1,37 @@
 services:
-  app:
+  avito-shop-service:
     build: .
+    container_name: avito-shop-service
     ports:
       - "8080:8080"
-    env_file:
-      - .env  
-    restart: always 
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/shop?sslmode=disable
+      - SERVER_PORT=8080
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
 
   db:
     image: postgres:13
+    container_name: postgres
     environment:
-      POSTGRES_USER: user
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: test_db
+      POSTGRES_DB: shop
+    volumes:
+      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "shop"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - internal
 
-
-volumes:
-  postgres_data:
-
+networks:
+  internal:

@@ -13,6 +13,7 @@ type Database struct {
 	DB *gorm.DB
 }
 
+
 func NewDatabase() (*Database, error) {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
